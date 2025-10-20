@@ -7,6 +7,7 @@ from torchvision import transforms
 from torchvision.utils import save_image
 from PIL import Image
 from torchvision.datasets import VisionDataset
+from torch.optim.lr_scheduler import LambdaLR
 
 
 def build_transforms():
@@ -28,8 +29,13 @@ def get_optimizers_and_schedulers(gen, disc):
     # The learning rate for the generator should be decayed to 0 over
     # 100K iterations.
     ##################################################################
-    scheduler_discriminator = None
-    scheduler_generator = None
+    # lets just do a simple linear decay of lr
+    # don't want negative lr
+    discriminator_lambda = lambda epoch: max(0, 1-epoch/500000)
+    generator_lambda = lambda epoch: max(0, 1-epoch/100000)
+
+    scheduler_discriminator = LambdaLR(optim_discriminator, lr_lambda=discriminator_lambda)
+    scheduler_generator = LambdaLR(optim_generator, lr_lambda=generator_lambda)
     ##################################################################
     #                          END OF YOUR CODE                      #
     ##################################################################
@@ -105,8 +111,10 @@ def train_model(
                 # 2. Compute discriminator output on the train batch.
                 # 3. Compute the discriminator output on the generated data.
                 ##################################################################
-                discrim_real = None
-                discrim_fake = None
+                # random noise initialized inside forward so we don't need to pass in
+                gen_output = gen(n_samples=batch_size).detach()
+                discrim_real = disc(train_batch)
+                discrim_fake = disc(gen_output)
                 ##################################################################
                 #                          END OF YOUR CODE                      #
                 ##################################################################
@@ -115,8 +123,20 @@ def train_model(
                 # TODO 1.5 Compute the interpolated batch and run the
                 # discriminator on it.
                 ###################################################################
+                
+                
                 interp = None
                 discrim_interp = None
+
+                # sample 1 episilon per img
+                epsilon = torch.rand(batch_size, 1, 1, 1, device=train_batch.device)
+                # mix real and fake batches
+                interp = epsilon * train_batch + (1-epsilon) * gen_output
+                interp.requires_grad_(True) # will need to calc gradients later in loss func
+                # run interplated batch through discriminator
+                discrim_interp = disc(interp)
+
+
                 ##################################################################
                 #                          END OF YOUR CODE                      #
                 ##################################################################
@@ -136,8 +156,10 @@ def train_model(
                     # TODO 1.2: Compute generator and discriminator output on
                     # generated data.
                     ###################################################################
-                    fake_batch = None
-                    discrim_fake = None
+                    # can't reuse the discrim_fake we used when updating the discriminator
+                    # because then G would be trying to fool outdated D
+                    fake_batch = gen(n_samples = batch_size)
+                    discrim_fake = disc(fake_batch)
                     ##################################################################
                     #                          END OF YOUR CODE                      #
                     ##################################################################
@@ -156,7 +178,10 @@ def train_model(
                         # TODO 1.2: Generate samples using the generator.
                         # Make sure they lie in the range [0, 1]!
                         ##################################################################
-                        generated_samples = None
+                        generated_samples = gen(n_samples=batch_size)
+                        #output is b,3,h,w
+                        # final layer is tanh which squashes to [-1,1]
+                        generated_samples = (generated_samples +1)/2
                         ##################################################################
                         #                          END OF YOUR CODE                      #
                         ##################################################################

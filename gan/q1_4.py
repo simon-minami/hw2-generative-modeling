@@ -17,6 +17,11 @@ def compute_discriminator_loss(
     # for Q1.5.
     ##################################################################
     loss = None
+    real_target = torch.ones_like(discrim_real)
+    fake_target = torch.zeros_like(discrim_fake)
+    loss_real = F.mse_loss(discrim_real, real_target)
+    loss_fake = F.mse_loss(discrim_fake, fake_target)
+    loss = 0.5 * loss_real + 0.5 * loss_fake
     ##################################################################
     #                          END OF YOUR CODE                      #
     ##################################################################
@@ -28,6 +33,8 @@ def compute_generator_loss(discrim_fake):
     # TODO: 1.4: Implement LSGAN loss for generator.
     ##################################################################
     loss = None
+    target = torch.ones_like(discrim_fake)
+    loss = 0.5 * F.mse_loss(discrim_fake, target)
     ##################################################################
     #                          END OF YOUR CODE                      #
     ##################################################################

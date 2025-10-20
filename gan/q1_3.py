@@ -6,6 +6,7 @@ import torch
 
 from networks import Discriminator, Generator
 import torch.nn.functional as F
+import torch.nn as nn
 from train import train_model
 
 
@@ -18,6 +19,14 @@ def compute_discriminator_loss(
     # for Q1.5.
     ##################################################################
     loss = None
+    # ok so discrim_real and discrim_fake are just model outputs from discriminator
+    # i think raw logits so we need to apply sigmoid
+    # should both be b,1
+    real_target = torch.ones_like(discrim_real)
+    fake_target = torch.zeros_like(discrim_fake)
+    loss_real = F.binary_cross_entropy_with_logits(discrim_real, real_target)
+    loss_fake = F.binary_cross_entropy_with_logits(discrim_fake, fake_target)
+    loss = loss_real + loss_fake
     ##################################################################
     #                          END OF YOUR CODE                      #
     ##################################################################
@@ -29,6 +38,8 @@ def compute_generator_loss(discrim_fake):
     # TODO 1.3: Implement GAN loss for the generator.
     ##################################################################
     loss = None
+    target = torch.ones_like(discrim_fake)
+    loss = F.binary_cross_entropy_with_logits(discrim_fake, target)
     ##################################################################
     #                          END OF YOUR CODE                      #
     ##################################################################

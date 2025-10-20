@@ -21,6 +21,23 @@ def compute_discriminator_loss(
     # loss = loss_pt1 + loss_pt2
     ##################################################################
     loss = None
+    loss_pt1 = torch.mean(discrim_fake) - torch.mean(discrim_real)
+
+    # take gradient of D(x_interp) wrt x_interp
+    # output should be same shape as x_interp, b,c,h,w
+    gradients = torch.autograd.grad(
+        outputs=discrim_interp,
+        inputs=interp,
+        grad_outputs=torch.ones_like(discrim_interp),
+        create_graph=True
+    )[0]
+    # output should be same shape b,c,h,w
+    # reshape so we have per sample b,c*h*w
+    gradients = gradients.view(gradients.shape[0], -1)
+    # take l2 norm
+    norm = torch.norm(gradients, dim=1)
+    loss_pt2 = (lamb * (norm - 1)**2).mean()  # take mean across batch dim
+    loss = loss_pt1 + loss_pt2
     ##################################################################
     #                          END OF YOUR CODE                      #
     ##################################################################
@@ -33,6 +50,7 @@ def compute_generator_loss(discrim_fake):
     # loss = - E[D(fake_data)]
     ##################################################################
     loss = None
+    loss = -torch.mean(discrim_fake)
     ##################################################################
     #                          END OF YOUR CODE                      #
     ##################################################################

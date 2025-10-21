@@ -330,7 +330,7 @@ class Generator(torch.jit.ScriptModule):
         # network.
         ##################################################################
         # need to generate n_samples of dim 128
-        z = torch.randn(n_samples, 128)
+        z = torch.randn(n_samples, 128, device='cuda')
         return self.forward_given_samples(z)
         ##################################################################
         #                          END OF YOUR CODE                      #

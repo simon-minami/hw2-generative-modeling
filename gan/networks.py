@@ -18,6 +18,8 @@ class UpSampleConv2D(torch.jit.ScriptModule):
         )
         self.upscale_factor = upscale_factor
 
+        self.pixel_shuffle = nn.PixelShuffle(self.upscale_factor)
+
     @torch.jit.script_method
     def forward(self, x):
         ##################################################################
@@ -30,7 +32,8 @@ class UpSampleConv2D(torch.jit.ScriptModule):
         # input should be b,c,h,w
         # need to duplicate channel dim up to c*s^2
         x = x.repeat(1, int(self.upscale_factor**2), 1, 1)
-        x = nn.PixelShuffle(self.upscale_factor)(x)
+        # x = nn.PixelShuffle(self.upscale_factor)(x)
+        x = self.pixel_shuffle(x)
         # x is now b,c, hs, ws
         x = self.conv(x)
         return x

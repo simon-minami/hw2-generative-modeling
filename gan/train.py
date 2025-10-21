@@ -112,7 +112,7 @@ def train_model(
                 # 3. Compute the discriminator output on the generated data.
                 ##################################################################
                 # random noise initialized inside forward so we don't need to pass in
-                gen_output = gen(n_samples=batch_size).detach()
+                gen_output = gen(n_samples=train_batch.shape[0]).detach()
                 discrim_real = disc(train_batch)
                 discrim_fake = disc(gen_output)
                 ##################################################################

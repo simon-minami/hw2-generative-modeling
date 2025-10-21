@@ -129,7 +129,7 @@ def train_model(
                 discrim_interp = None
 
                 # sample 1 episilon per img
-                epsilon = torch.rand(batch_size, 1, 1, 1, device=train_batch.device)
+                epsilon = torch.rand(train_batch.shape[0], 1, 1, 1, device=train_batch.device)
                 # mix real and fake batches
                 interp = epsilon * train_batch + (1-epsilon) * gen_output
                 interp.requires_grad_(True) # will need to calc gradients later in loss func

@@ -19,7 +19,7 @@ class UpSampleConv2D(torch.jit.ScriptModule):
         self.upscale_factor = upscale_factor
 
         self.pixel_shuffle = nn.PixelShuffle(self.upscale_factor)
-        self.pixel_unshuffle = nn.PixelUnshuffle(self.downscale_ratio)
+        
 
     @torch.jit.script_method
     def forward(self, x):
@@ -53,6 +53,7 @@ class DownSampleConv2D(torch.jit.ScriptModule):
             input_channels, n_filters, kernel_size=kernel_size, padding=padding
         )
         self.downscale_ratio = downscale_ratio
+        self.pixel_unshuffle = nn.PixelUnshuffle(self.downscale_ratio)
 
     @torch.jit.script_method
     def forward(self, x):

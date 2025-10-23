@@ -51,6 +51,27 @@ def vae_loss(model, x, beta = 1):
     total_loss = None
     recon_loss = None
     kl_loss = None
+
+    # first recon loss
+    # sample z from mu, log std from encoder output using reparamterization trick
+    mu, log_std = model.encoder(x)
+    # mu, log_std is b,latent
+    std = torch.exp(log_std)
+    epsilon = torch.randn_like(log_std)  # sample epsilon from N(0,1)
+    z = mu + std * epsilon
+
+    x_pred = model.decoder(z)
+    x_pred = torch.tanh(x_pred)
+    recon_loss = F.mse_loss(x_pred, x)
+
+    # next we do kl divergence loss according to formula
+    # shapes b,latent -> loss per row then ave across b dim
+    kl_loss = mu.pow(2) + std.pow(2) - (2 * log_std + 1)
+    kl_loss = 0.5 * torch.sum(kl_loss, dim=1)  # should be b,1
+    kl_loss = torch.mean(kl_loss)
+
+    # ok i think we weight kl loss with beta
+    total_loss = recon_loss + beta * kl_loss
     ##################################################################
     #                          END OF YOUR CODE                      #
     ##################################################################
@@ -68,7 +89,7 @@ def linear_beta_scheduler(max_epochs=None, target_val = 1):
     # linearly from 0 at epoch 0 to target_val at epoch max_epochs.
     ##################################################################
     def _helper(epoch):
-        pass
+        return min(target_val * epoch / max_epochs, target_val)
     ##################################################################
     #                          END OF YOUR CODE                      #
     ##################################################################

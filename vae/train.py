@@ -48,6 +48,8 @@ def vae_loss(model, x, beta = 1):
     # closed form, you can find the formula here:
     # (https://stats.stackexchange.com/questions/318748/deriving-the-kl-divergence-loss-for-vaes).
     ##################################################################
+    print(f'debug: recon target min max: {torch.min(x).item(), torch.max(x).item()}')
+
     total_loss = None
     recon_loss = None
     kl_loss = None

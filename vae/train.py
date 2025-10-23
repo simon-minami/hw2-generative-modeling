@@ -18,7 +18,15 @@ def ae_loss(model, x):
     ##################################################################
     # TODO 2.2: Fill in MSE loss between x and its reconstruction.
     ##################################################################
+
     loss = None
+    # i think we need to sigmoid to get [0,1] pixel values
+    z = model.encoder(x)
+    x_pred = model.decoder(z)
+    x_pred = torch.sigmoid(x_pred)
+
+    # now we can calc MSE
+    loss = F.mse_loss(x_pred, x)
     ##################################################################
     #                          END OF YOUR CODE                      #
     ##################################################################

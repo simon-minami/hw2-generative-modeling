@@ -68,7 +68,8 @@ def vae_loss(model, x, beta = 1):
 
     x_pred = model.decoder(z)
     x_pred = torch.tanh(x_pred)
-    recon_loss = F.mse_loss(x_pred, x)
+    recon_loss = F.mse_loss(x_pred, x, reduction='sum')
+    recon_loss = recon_loss / x_pred.shape[0]  # average over batch
 
     # next we do kl divergence loss according to formula
     # shapes b,latent -> loss per row then ave across b dim

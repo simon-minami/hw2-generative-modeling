@@ -18,12 +18,12 @@ def ae_loss(model, x):
     ##################################################################
     # TODO 2.2: Fill in MSE loss between x and its reconstruction.
     ##################################################################
-    print(f'debug: recon target min max: {torch.min(x), torch.max(x)}')
+    print(f'debug: recon target min max: {torch.min(x).item(), torch.max(x).item()}')
     loss = None
     # i think we need to sigmoid to get [0,1] pixel values
     z = model.encoder(x)
     x_pred = model.decoder(z)
-    print(f'debug: decoder output before sig min max: {torch.min(x_pred), torch.max(x_pred)}')
+    print(f'debug: decoder output before sig min max: {torch.min(x_pred).item(), torch.max(x_pred).item()}')
 
     x_pred = torch.sigmoid(x_pred)
 

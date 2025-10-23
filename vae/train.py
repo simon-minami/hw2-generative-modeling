@@ -28,7 +28,11 @@ def ae_loss(model, x):
     x_pred = torch.tanh(x_pred)
 
     # now we can calc MSE
-    loss = F.mse_loss(x_pred, x)
+    # both should be b,c,h,w
+    # instructions say only average over b, meaning we want per img loss?
+    loss = F.mse_loss(x_pred, x, reduction='sum')
+    # now we average over batch
+    loss = loss / x_pred.shape[0]
     ##################################################################
     #                          END OF YOUR CODE                      #
     ##################################################################
@@ -48,7 +52,7 @@ def vae_loss(model, x, beta = 1):
     # closed form, you can find the formula here:
     # (https://stats.stackexchange.com/questions/318748/deriving-the-kl-divergence-loss-for-vaes).
     ##################################################################
-    print(f'debug: recon target min max: {torch.min(x).item(), torch.max(x).item()}')
+    # print(f'debug: recon target min max: {torch.min(x).item(), torch.max(x).item()}')
 
     total_loss = None
     recon_loss = None

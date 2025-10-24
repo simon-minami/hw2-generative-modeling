@@ -34,7 +34,7 @@ class DiffusionModel(nn.Module):
         # previous timesteps.
         ##################################################################
         self.alphas_cumprod = torch.cumprod(alphas, dim=0)
-        self.alphas_cumprod_prev =  torch.cat([torch.ones(1), self.alphas_cumprod[:-1]], dim=0)
+        self.alphas_cumprod_prev =  torch.cat([torch.ones(1, device=self.device), self.alphas_cumprod[:-1]], dim=0)
 
         
 

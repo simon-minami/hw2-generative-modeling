@@ -18,8 +18,8 @@ def get_fid(gen, dataset_name, dataset_resolution, z_dimension, batch_size, num_
     gen_fn = None
     all_samples = list()
     import numpy as np
-
-    while len(all_samples) < num_gen:
+    total = 0
+    while total < num_gen:
         curr_batch_size = min(batch_size, num_gen - len(all_samples))
         z_shape = (curr_batch_size, 3, dataset_resolution, dataset_resolution)
         device = next(gen.parameters()).device
@@ -30,6 +30,9 @@ def get_fid(gen, dataset_name, dataset_resolution, z_dimension, batch_size, num_
         gen_fn = torch.clamp(gen_fn, 0, 1) * 255
         gen_fn = gen_fn.byte().permute(0, 2, 3, 1).cpu().numpy()
         all_samples.append(gen_fn)
+
+        total += curr_batch_size
+        print(f'processed {total} imgs out of {num_gen}')
 
     gen_fn = np.concatenate(all_samples, axis=0)
         # convert to numpy and get in b,h,w,c format

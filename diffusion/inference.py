@@ -15,26 +15,32 @@ def get_fid(gen, dataset_name, dataset_resolution, z_dimension, batch_size, num_
     # diffusion model given z
     # Note: The output must be in the range [0, 255]!
     ##################################################################
-    gen_fn = None
-    all_samples = list()
-    import numpy as np
-    total = 0
-    while total < num_gen:
-        curr_batch_size = min(batch_size, num_gen - len(all_samples))
-        z_shape = (curr_batch_size, 3, dataset_resolution, dataset_resolution)
-        device = next(gen.parameters()).device
+    def gen_fn(z):
+        print(f'inside gen_fn: {z.shape}')
+        
+        # z_shape = (curr_batch_size, 3, dataset_resolution, dataset_resolution)
+        # gen_output = gen.sample_given_z(z, z_shape)
+        
+    # gen_fn = None
+    # all_samples = list()
+    # import numpy as np
+    # total = 0
+    # while total < num_gen:
+    #     curr_batch_size = min(batch_size, num_gen - len(all_samples))
+    #     z_shape = (curr_batch_size, 3, dataset_resolution, dataset_resolution)
+    #     device = next(gen.parameters()).device
 
-        z = torch.randn(curr_batch_size*z_dimension, device=device)
-        gen_fn = gen.sample_given_z(z, z_shape)
+    #     z = torch.randn(curr_batch_size*z_dimension, device=device)
+    #     gen_fn = gen.sample_given_z(z, z_shape)
 
-        gen_fn = torch.clamp(gen_fn, 0, 1) * 255
-        gen_fn = gen_fn.byte().permute(0, 2, 3, 1).cpu().numpy()
-        all_samples.append(gen_fn)
+    #     gen_fn = torch.clamp(gen_fn, 0, 1) * 255
+    #     gen_fn = gen_fn.byte().permute(0, 2, 3, 1).cpu().numpy()
+    #     all_samples.append(gen_fn)
 
-        total += curr_batch_size
-        print(f'processed {total} imgs out of {num_gen}')
+    #     total += curr_batch_size
+    #     print(f'processed {total} imgs out of {num_gen}')
 
-    gen_fn = np.concatenate(all_samples, axis=0)
+    # gen_fn = np.concatenate(all_samples, axis=0)
         # convert to numpy and get in b,h,w,c format
     ##################################################################
     #                          END OF YOUR CODE                      #

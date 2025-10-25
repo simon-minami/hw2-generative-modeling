@@ -17,7 +17,7 @@ def get_fid(gen, dataset_name, dataset_resolution, z_dimension, batch_size, num_
     ##################################################################
     device = next(gen.parameters()).device
     def gen_fn(z):
-        # print(f'inside gen_fn: {z.shape}')
+        print(f'inside gen_fn: {z.shape, type(z)}')
         # z is just 256, 3072 latent vector
         # b,latent
         # need to output b,h,w,c np array img

@@ -21,7 +21,7 @@ def get_fid(gen, dataset_name, dataset_resolution, z_dimension, batch_size, num_
         # z is just 256, 3072 latent vector
         # b,latent
         # need to output b,h,w,c np array img
-        z = torch.tensor(z, device=device).float()
+        # z = torch.tensor(z, device=device).float()
         b = z.shape[0]
         z_shape = (b, 3, dataset_resolution, dataset_resolution)
         gen_output = gen.sample_given_z(z, z_shape)

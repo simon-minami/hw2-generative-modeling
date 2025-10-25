@@ -17,7 +17,7 @@ def get_fid(gen, dataset_name, dataset_resolution, z_dimension, batch_size, num_
     ##################################################################
     device = next(gen.parameters()).device
     def gen_fn(z):
-        print(f'inside gen_fn: {z.shape, type(z)}')
+        # print(f'inside gen_fn: {z.shape, type(z)}')
         # z is just 256, 3072 latent vector
         # b,latent
         # need to output b,h,w,c np array img
@@ -26,7 +26,8 @@ def get_fid(gen, dataset_name, dataset_resolution, z_dimension, batch_size, num_
         z_shape = (b, 3, dataset_resolution, dataset_resolution)
         gen_output = gen.sample_given_z(z, z_shape)
         gen_output = torch.clamp(gen_output, 0, 1) * 255
-        gen_output = gen_output.byte().permute(0, 2, 3, 1).cpu().numpy()
+        # gen_output = gen_output.byte().permute(0, 2, 3, 1)
+        # good with b,c,h,w torch output?
         return gen_output
 
     ##################################################################

@@ -9,21 +9,30 @@ from cleanfid import fid as cleanfid
 
 @torch.no_grad()
 def get_fid(gen, dataset_name, dataset_resolution, z_dimension, batch_size, num_gen):
+    
     ##################################################################
     # TODO 3.3: Write a function that samples images from the
     # diffusion model given z
     # Note: The output must be in the range [0, 255]!
     ##################################################################
     gen_fn = None
+    all_samples = list()
+    import numpy as np
 
-    # TODO FIX z_dim input is 32*32*3
-    device = next(gen.parameters()).device
-    z = torch.randn(z_dimension, device=device)
-    gen_fn = gen.sample_given_z(z, (batch_size, 3, 32, 32))
+    while len(all_samples) < num_gen:
+        curr_batch_size = min(batch_size, num_gen - len(all_samples))
+        z_shape = (curr_batch_size, 3, dataset_resolution, dataset_resolution)
+        device = next(gen.parameters()).device
 
-    gen_fn = torch.clamp(gen_fn, 0, 1) * 255
-    gen_fn = gen_fn.byte().permute(0, 2, 3, 1).cpu().numpy()
-    # convert to numpy and get in b,h,w,c format
+        z = torch.randn(curr_batch_size*z_dimension, device=device)
+        gen_fn = gen.sample_given_z(z, z_shape)
+
+        gen_fn = torch.clamp(gen_fn, 0, 1) * 255
+        gen_fn = gen_fn.byte().permute(0, 2, 3, 1).cpu().numpy()
+        all_samples.append(gen_fn)
+
+    gen_fn = np.concatenate(all_samples, axis=0)
+        # convert to numpy and get in b,h,w,c format
     ##################################################################
     #                          END OF YOUR CODE                      #
     ##################################################################

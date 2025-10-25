@@ -15,6 +15,15 @@ def get_fid(gen, dataset_name, dataset_resolution, z_dimension, batch_size, num_
     # Note: The output must be in the range [0, 255]!
     ##################################################################
     gen_fn = None
+
+    # TODO FIX z_dim input is 32*32*3
+    device = next(gen.parameters()).device
+    z = torch.randn(z_dimension, device=device)
+    gen_fn = gen.sample_given_z(z, z_dimension)
+
+    gen_fn = torch.clamp(gen_fn, 0, 1) * 255
+    gen_fn = gen_fn.byte().permute(0, 2, 3, 1).cpu().numpy()
+    # convert to numpy and get in b,h,w,c format
     ##################################################################
     #                          END OF YOUR CODE                      #
     ##################################################################

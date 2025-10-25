@@ -157,25 +157,35 @@ class DiffusionModel(nn.Module):
         # sampling process.
         ##################################################################
         # Step 1: Predict x_0 and the additive noise for tau_i
-        
+        # batch is batch size
+        t = torch.full((batch, ), tau_i, device=device, dtype=torch.long)
+        pred_noise, x_0 = model_predictions(img, t)
         # Make tau_isub1 0 , incase it is below 0
         if tau_isub1 < 0:
             tau_isub1 = 0        
 
-        x_0 = None
+        # x_0 = None
 
         # Step 2: Extract \alpha_{\tau_{i - 1}} and \alpha_{\tau_{i}}
-        pass
+        alpha_tau_isub1 = extract(alphas_cumprod, torch.full((batch, ), tau_isub1, device=device, dtype=torch.long), img.shape)
+        alpha_tau_i = extract(alphas_cumprod, torch.full((batch, ), tau_i, device=device,dtype=torch.long), img.shape)
+
 
         # Step 3: Compute \sigma_{\tau_{i}}
-        pass
+        # betat is 1- alphatau??
+        beta_tau_i = extract(self.betas, torch.full((batch, ), tau_i, device=device, dtype=torch.long), img.shape)
+
+        sigma_tau_i = torch.sqrt(eta * (1 - alpha_tau_isub1) * (beta_tau_i) / (1-alpha_tau_i))
 
         # Step 4: Compute the coefficient of \epsilon_{\tau_{i}}
-        pass
+        coef = torch.sqrt(1 - alpha_tau_isub1 - sigma_tau_i.pow(2))
 
         # Step 5: Sample from q(x_{\tau_{i - 1}} | x_{\tau_t}, x_0)
         # HINT: Use the reparameterization trick
+        z = torch.randn_like(img) if tau_i > 0 else torch.zeros_like(img)
         img = None
+        mu_tau_i = torch.sqrt(alpha_tau_isub1)*x_0 + coef * pred_noise
+        img = mu_tau_i + sigma_tau_i * z
         ##################################################################
         #                          END OF YOUR CODE                      #
         ##################################################################

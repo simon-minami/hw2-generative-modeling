@@ -40,7 +40,25 @@ def interpolate_latent_space(gen, path):
     # 3. Save out an image holding all 100 samples.
     # Use torchvision.utils.save_image to save out the visualization.
     ##################################################################
-    pass
+    # ok so we need 100 128 dim latent vectors: shape is 100,128
+    # Linearly interpolate from -1 to 1
+    lin = torch.linspace(-1, 1, 10)
+    
+    # Create a batch of 100 z vectors
+    row=0
+    Z = torch.zeros(100, 128, device=next(gen.parameters()).device)
+    for i in range(10):
+        for j in range(10):
+            Z[row,0] = lin[i]
+            Z[row, 1] = lin[j]
+            row += 1
+    gen_output = gen.forward_given_samples(Z)
+    # 100,3,32,32 output?
+    gen_output = (gen_output + 1) / 2  # from [-1,1] → [0,1]
+
+    # Save image grid (10x10)
+    from torchvision.utils import save_image
+    save_image(gen_output, path, nrow=10)
     ##################################################################
     #                          END OF YOUR CODE                      #
     ##################################################################
